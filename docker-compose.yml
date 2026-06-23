@@ -77,9 +77,7 @@ services:
     build:
       context: ./Portfolio
       args:
-        VITE_EMAILJS_SERVICE_ID: ${EMAILJS_SERVICE_ID:-}
-        VITE_EMAILJS_TEMPLATE_ID: ${EMAILJS_TEMPLATE_ID:-}
-        VITE_EMAILJS_PUBLIC_KEY: ${EMAILJS_PUBLIC_KEY:-}
+        VITE_CONTACT_ENDPOINT: ${CONTACT_ENDPOINT:-}
     restart: unless-stopped
     labels:
       com.datadoghq.ad.logs: '[{"source": "nginx", "service": "portfolio"}]'
