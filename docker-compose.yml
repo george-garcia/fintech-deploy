@@ -120,8 +120,10 @@ services:
     ports:
       - '127.0.0.1:8082:80'
 
+  # Deferred: the admin console also needs the bank's admin-api (apps/admin-api,
+  # not yet containerized). Kept on its own profile so the standard deploy skips it.
   mockbank-admin:
-    profiles: ['bank']
+    profiles: ['bank-admin']
     build:
       context: ./mock-bank
       dockerfile: apps/admin/Dockerfile
