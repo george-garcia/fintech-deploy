@@ -187,7 +187,7 @@ services:
   # ── Production edge (Caddy TLS + Datadog) ───────────────────────────────────
   caddy:
     profiles: ['edge']
-    image: caddy:2-alpine
+    build: ./infra/caddy
     restart: unless-stopped
     ports:
       - '80:80'

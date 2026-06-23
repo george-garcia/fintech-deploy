@@ -4,39 +4,61 @@
 # Replace the email below with your own for ACME notifications.
 {
 	email admin@georgegarciadev.com
+	order rate_limit before reverse_proxy
+}
+
+# Per-IP rate limit (~120 requests/minute). Generous for a real visitor (each page
+# load is many asset requests), brutal for bots/scanners. Returns 429 when exceeded.
+(ratelimit) {
+	rate_limit {
+		zone perip {
+			key {remote_host}
+			events 120
+			window 1m
+		}
+	}
 }
 
 # Portfolio (apex)
 georgegarciadev.com, www.georgegarciadev.com {
+	import ratelimit
 	reverse_proxy portfolio:80
 }
 
 # Help Desk Hero — client + API (apis. matches the existing DNS)
 helpdeskhero.georgegarciadev.com {
+	import ratelimit
 	reverse_proxy ticketing-client:80
 }
 apis.georgegarciadev.com {
+	import ratelimit
 	reverse_proxy ticketing-server:3001
 }
 
 # Mock Bank
 bank.georgegarciadev.com {
+	import ratelimit
 	reverse_proxy mockbank-web:80
 }
 bank-admin.georgegarciadev.com {
+	import ratelimit
 	reverse_proxy mockbank-admin:80
 }
 bank-admin-api.georgegarciadev.com {
+	import ratelimit
 	reverse_proxy mockbank-admin-api:4001
 }
 bank-api.georgegarciadev.com {
+	import ratelimit
 	reverse_proxy mockbank-api:3000
 }
 
 # Lucky Spin Casino
 casino.georgegarciadev.com {
+	import ratelimit
 	reverse_proxy casino-web:80
 }
 casino-api.georgegarciadev.com {
+	import ratelimit
 	reverse_proxy casino-server:4100
 }
