@@ -23,8 +23,12 @@ apis.georgegarciadev.com {
 bank.georgegarciadev.com {
 	reverse_proxy mockbank-web:80
 }
-# bank-admin is deferred until the bank admin-api is containerized.
-# bank-admin.georgegarciadev.com { reverse_proxy mockbank-admin:80 }
+bank-admin.georgegarciadev.com {
+	reverse_proxy mockbank-admin:80
+}
+bank-admin-api.georgegarciadev.com {
+	reverse_proxy mockbank-admin-api:4001
+}
 bank-api.georgegarciadev.com {
 	reverse_proxy mockbank-api:3000
 }

@@ -27,7 +27,7 @@ services:
       - pgdata:/var/lib/postgresql/data
       - ./infra/postgres-init:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U fintech']
+      test: ['CMD-SHELL', 'pg_isready -U fintech -d postgres']
       interval: 5s
       timeout: 5s
       retries: 10
@@ -120,15 +120,33 @@ services:
     ports:
       - '127.0.0.1:8082:80'
 
-  # Deferred: the admin console also needs the bank's admin-api (apps/admin-api,
-  # not yet containerized). Kept on its own profile so the standard deploy skips it.
+  mockbank-admin-api:
+    profiles: ['bank']
+    build:
+      context: ./mock-bank
+      dockerfile: apps/admin-api/Dockerfile
+    restart: unless-stopped
+    labels:
+      com.datadoghq.ad.logs: '[{"source": "nodejs", "service": "mockbank-admin-api"}]'
+    environment:
+      NODE_ENV: production
+      ADMIN_API_PORT: 4001
+      DATABASE_URL: postgres://mockbank_user:${MOCKBANK_DB_PASSWORD:-mockbank_dev}@postgres:5432/mockbank
+      JWT_SECRET: ${MOCKBANK_JWT_SECRET:-change-me-in-production}
+      ADMIN_FRONTEND_URL: ${MOCKBANK_ADMIN_FRONTEND_URL:-http://localhost:8083}
+    ports:
+      - '127.0.0.1:4001:4001'
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   mockbank-admin:
-    profiles: ['bank-admin']
+    profiles: ['bank']
     build:
       context: ./mock-bank
       dockerfile: apps/admin/Dockerfile
       args:
-        VITE_API_URL: ${MOCKBANK_ADMIN_API_URL:-http://localhost:4001/api}
+        VITE_ADMIN_API_URL: ${MOCKBANK_ADMIN_API_URL:-http://localhost:4001/api}
     restart: unless-stopped
     labels:
       com.datadoghq.ad.logs: '[{"source": "nginx", "service": "mockbank-admin"}]'
