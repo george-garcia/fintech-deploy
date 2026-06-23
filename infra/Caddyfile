@@ -1,0 +1,39 @@
+# Caddy reverse proxy for the one-box deployment. Automatic HTTPS via Let's Encrypt
+# once the subdomains' A records point at this server's Elastic IP.
+#
+# Replace the email below with your own for ACME notifications.
+{
+	email admin@georgegarciadev.com
+}
+
+# Portfolio (apex)
+georgegarciadev.com, www.georgegarciadev.com {
+	reverse_proxy portfolio:80
+}
+
+# Help Desk Hero — client + API (apis. matches the existing DNS)
+helpdeskhero.georgegarciadev.com {
+	reverse_proxy ticketing-client:80
+}
+apis.georgegarciadev.com {
+	reverse_proxy ticketing-server:3001
+}
+
+# Mock Bank
+bank.georgegarciadev.com {
+	reverse_proxy mockbank-web:80
+}
+bank-admin.georgegarciadev.com {
+	reverse_proxy mockbank-admin:80
+}
+bank-api.georgegarciadev.com {
+	reverse_proxy mockbank-api:3000
+}
+
+# Lucky Spin Casino
+casino.georgegarciadev.com {
+	reverse_proxy casino-web:80
+}
+casino-api.georgegarciadev.com {
+	reverse_proxy casino-server:4100
+}

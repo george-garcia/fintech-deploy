@@ -1,0 +1,12 @@
+# Secrets
+.env
+
+# App repos are cloned by scripts/clone-apps.sh, never committed here.
+/Portfolio/
+/Ticketing-tool-client/
+/Ticketing-tool-server/
+/mock-bank/
+/mock-gambling-site/
+
+*.log
+.DS_Store

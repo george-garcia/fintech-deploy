@@ -1,0 +1,2 @@
+# Force LF for shell scripts so they run on the Linux host (CRLF breaks bash).
+*.sh text eol=lf
