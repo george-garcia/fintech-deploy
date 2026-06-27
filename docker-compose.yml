@@ -187,6 +187,86 @@ services:
     ports:
       - '127.0.0.1:8084:80'
 
+  # ── Glow (video-first dating; separate repo, its own Neon DB + Redis) ───────
+  # Defaults to APP_ENV=staging (cheap SMS/social bypass) for prod testing. Flip the
+  # GLOW_* vars to production values when ready. Needs GLOW_DATABASE_URL (Neon) set.
+  glow-redis:
+    profiles: ['glow']
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ['redis-server', '--save', '', '--appendonly', 'no']
+
+  glow-api:
+    profiles: ['glow']
+    build:
+      context: ./Glow
+      dockerfile: apps/api/Dockerfile
+    restart: unless-stopped
+    labels:
+      com.datadoghq.ad.logs: '[{"source": "nodejs", "service": "glow-api"}]'
+    environment:
+      NODE_ENV: production
+      APP_ENV: ${GLOW_APP_ENV:-staging}
+      API_PORT: 3000
+      WEB_ORIGIN: https://glowapp.georgegarciadev.com
+      SESSION_JWT_SECRET: ${GLOW_SESSION_JWT_SECRET:-dev-session-secret-change-me}
+      DATABASE_URL: ${GLOW_DATABASE_URL}
+      REDIS_URL: redis://glow-redis:6379
+      SMS_MODE: ${GLOW_SMS_MODE:-dev}
+      SMS_SENDER_ID: ${GLOW_SMS_SENDER_ID:-}
+      SMS_ORIGINATION_NUMBER: ${GLOW_SMS_ORIGINATION_NUMBER:-}
+      PHONE_PEPPER: ${GLOW_PHONE_PEPPER:-dev-pepper-change-me}
+      DEFAULT_PHONE_COUNTRY: ${GLOW_DEFAULT_PHONE_COUNTRY:-US}
+      SOCIAL_MODE: ${GLOW_SOCIAL_MODE:-dev}
+      GOOGLE_CLIENT_ID: ${GLOW_GOOGLE_CLIENT_ID:-}
+      APPLE_CLIENT_ID: ${GLOW_APPLE_CLIENT_ID:-}
+      ADMIN_PHONES: ${GLOW_ADMIN_PHONES:-}
+      ADMIN_EMAILS: ${GLOW_ADMIN_EMAILS:-}
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      MODERATION_MODE: ${GLOW_MODERATION_MODE:-dev}
+      LIVEKIT_URL: ${GLOW_LIVEKIT_URL:-}
+      LIVEKIT_API_KEY: ${GLOW_LIVEKIT_API_KEY:-}
+      LIVEKIT_API_SECRET: ${GLOW_LIVEKIT_API_SECRET:-}
+      LIVEKIT_WEBHOOK_KEY: ${GLOW_LIVEKIT_WEBHOOK_KEY:-}
+      MEDIA_S3_BUCKET: ${GLOW_MEDIA_S3_BUCKET:-}
+      MEDIA_CLOUDFRONT_DOMAIN: ${GLOW_MEDIA_CLOUDFRONT_DOMAIN:-}
+      MEDIA_CLOUDFRONT_KEY_PAIR_ID: ${GLOW_MEDIA_CLOUDFRONT_KEY_PAIR_ID:-}
+      MEDIA_CLOUDFRONT_PRIVATE_KEY: ${GLOW_MEDIA_CLOUDFRONT_PRIVATE_KEY:-}
+    depends_on:
+      - glow-redis
+
+  glow-web:
+    profiles: ['glow']
+    build:
+      context: ./Glow
+      dockerfile: apps/web/Dockerfile
+      args:
+        # Same-origin: Caddy proxies /api + /socket.io to glow-api.
+        VITE_API_URL: ''
+        VITE_SOCKET_URL: ''
+    restart: unless-stopped
+    labels:
+      com.datadoghq.ad.logs: '[{"source": "nginx", "service": "glow-web"}]'
+
+  glow-admin:
+    profiles: ['glow']
+    build:
+      context: ./Glow
+      dockerfile: apps/admin/Dockerfile
+    restart: unless-stopped
+    labels:
+      com.datadoghq.ad.logs: '[{"source": "nginx", "service": "glow-admin"}]'
+
+  glow-landing:
+    profiles: ['glow']
+    build:
+      context: ./Glow/apps/landing
+      args:
+        GLOW_APP_URL: ${GLOW_APP_URL:-https://glowapp.georgegarciadev.com}
+    restart: unless-stopped
+    labels:
+      com.datadoghq.ad.logs: '[{"source": "nginx", "service": "glow-landing"}]'
+
   # ── Production edge (Caddy TLS + Datadog) ───────────────────────────────────
   caddy:
     profiles: ['edge']

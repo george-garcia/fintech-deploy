@@ -62,3 +62,22 @@ casino-api.georgegarciadev.com {
 	import ratelimit
 	reverse_proxy casino-server:4100
 }
+
+# Glow — landing (marketing), app, admin. Same-origin: the app/admin proxy their /api
+# (and /socket.io) to glow-api so no CORS or separate API subdomain is needed.
+glow.georgegarciadev.com {
+	import ratelimit
+	reverse_proxy glow-landing:80
+}
+glowapp.georgegarciadev.com {
+	import ratelimit
+	@api path /api/* /socket.io/*
+	reverse_proxy @api glow-api:3000
+	reverse_proxy glow-web:80
+}
+glow-admin.georgegarciadev.com {
+	import ratelimit
+	@api path /api/*
+	reverse_proxy @api glow-api:3000
+	reverse_proxy glow-admin:80
+}

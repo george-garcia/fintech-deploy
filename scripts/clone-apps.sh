@@ -24,6 +24,7 @@ clone Ticketing-tool-client Ticketing-tool-client
 clone Ticketing-tool-server Ticketing-tool-server
 clone mock-bank             mock-bank           feat/partner-apis-and-card-reveal
 clone lucky-spin-casino     mock-gambling-site  main
+clone Glow                  Glow                main
 
 echo
 echo "All app repos are in place next to docker-compose.yml."
