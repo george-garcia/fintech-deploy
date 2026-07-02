@@ -47,6 +47,8 @@ services:
       AWS_REGION: ${AWS_REGION:-us-east-1}
       COGNITO_USER_POOL_ID: ${TICKETING_COGNITO_POOL_ID:-}
       COGNITO_CLIENT_ID: ${TICKETING_COGNITO_CLIENT_ID:-}
+      # Comma-separated emails always granted admin on login (bootstraps the first admin).
+      ADMIN_EMAILS: ${TICKETING_ADMIN_EMAILS:-}
       FRONTEND_URL: ${TICKETING_FRONTEND_URL:-http://localhost:8081}
       LOG_LEVEL: info
     ports:
