@@ -112,8 +112,8 @@ services:
       context: ./mock-bank
       dockerfile: apps/web/Dockerfile
       args:
+        # Demo sign-in is passwordless (POST /auth/demo-login); no VITE_DEMO_PASSWORD needed.
         VITE_API_URL: ${MOCKBANK_API_URL:-http://localhost:3000/api}
-        VITE_DEMO_PASSWORD: ${DEMO_PASSWORD:-}
     restart: unless-stopped
     labels:
       com.datadoghq.ad.logs: '[{"source": "nginx", "service": "mockbank-web"}]'
@@ -146,8 +146,8 @@ services:
       context: ./mock-bank
       dockerfile: apps/admin/Dockerfile
       args:
+        # Demo sign-in is passwordless (POST /auth/demo-login); no VITE_DEMO_PASSWORD needed.
         VITE_ADMIN_API_URL: ${MOCKBANK_ADMIN_API_URL:-http://localhost:4001/api}
-        VITE_DEMO_PASSWORD: ${DEMO_PASSWORD:-}
     restart: unless-stopped
     labels:
       com.datadoghq.ad.logs: '[{"source": "nginx", "service": "mockbank-admin"}]'
@@ -179,8 +179,8 @@ services:
       context: ./mock-gambling-site
       dockerfile: web/Dockerfile
       args:
+        # Demo sign-in is passwordless (POST /api/auth/demo-login); no VITE_DEMO_PASSWORD needed.
         VITE_API_URL: ${CASINO_API_URL:-http://localhost:4100}
-        VITE_DEMO_PASSWORD: ${DEMO_PASSWORD:-}
     restart: unless-stopped
     labels:
       com.datadoghq.ad.logs: '[{"source": "nginx", "service": "casino-web"}]'
